@@ -10,6 +10,8 @@ pipeline {
      dockerImage = ''
   }
   
+  boolean testPassed = true
+  
   stages {
      stage("build preparation") {
         steps {
@@ -42,28 +44,26 @@ pipeline {
      stage('Scan for vulnerabilities') {
         
         steps {
-            sh 'trivy image --no-progress --exit-code 0 --severity MEDIUM,HIGH,CRITICAL registry'
+            try{
+                sh 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
+            } catch (Exception e) {
+                testPassed = false
+            }
         }
-       //steps {
-         //     script {
-         //        def ret = sh(script: 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry', returnStdout: true)
-         //        println ret
-                 //SCAN_STATUS = sh (
-                 //     script: 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry',
-                 //     returnStdout: true
-                 // ).trim()
-                 // echo "Scan status is: ${SCAN_STATUS}"
-        //      }
-        //}
      }
     
      stage('Deploy Image') {
          steps{
-             script {
-                docker.withRegistry( '', registryCredential ) {
-                dockerImage.push("$BUILD_NUMBER")
-                dockerImage.push('latest')
-             }
+             if(testPassed) {
+               script {
+                  docker.withRegistry( '', registryCredential ) {
+                  dockerImage.push("$BUILD_NUMBER")
+                  dockerImage.push('latest')
+               }
+              } else {
+                echo 'Security tests failed to be succesfully executed!'
+              }      
+                     
          }
      }
   }
