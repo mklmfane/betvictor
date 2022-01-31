@@ -63,7 +63,7 @@ pipeline {
        }
           
         failure {
-              catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                   echo "Security tests failed to pass succesfully!"
               }
         }
