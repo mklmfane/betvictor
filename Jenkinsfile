@@ -40,17 +40,21 @@ pipeline {
      }
     
      stage('Scan for vulnerabilities') {
+        
         steps {
-              script {
-                 def ret = sh(script: 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry', returnStdout: true)
-                 println ret
+            sh 'trivy image --no-progress --exit-code 0 --severity MEDIUM,HIGH,CRITICAL registry'
+        }
+       //steps {
+         //     script {
+         //        def ret = sh(script: 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry', returnStdout: true)
+         //        println ret
                  //SCAN_STATUS = sh (
                  //     script: 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry',
                  //     returnStdout: true
                  // ).trim()
                  // echo "Scan status is: ${SCAN_STATUS}"
               }
-        }
+        //}
      }
     
      stage('Deploy Image') {
