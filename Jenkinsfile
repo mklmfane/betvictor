@@ -61,7 +61,10 @@ pipeline {
         }
           
         failure {
-             echo "Security tests failed to pass succesfully!"
+             catchError(buildResult: 'SUCCESS', postResult: 'ABORTED') { 
+                    echo "Security tests failed to pass succesfully!"
+                    sleep(time: 5, unit: "SECONDS")
+             }
         }
     }
 }
