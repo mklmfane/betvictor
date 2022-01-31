@@ -11,7 +11,7 @@ pipeline {
   }
   
   stages {
-     stage("build preparation") {
+     stage("Build preparation") {
         steps {
             sh """
                mvn clean install
@@ -19,7 +19,7 @@ pipeline {
         }
      }
     
-     stage("Build container") {
+     stage("Build spring application image") {
         steps {    
             sh """ 
                docker build -t registry .    
@@ -31,7 +31,7 @@ pipeline {
         }
      }
     
-     stage("Run container from an image") {
+     stage("Run container") {
         steps {
            	sh """
               	   docker run -d -p 8081:8181 registry 
