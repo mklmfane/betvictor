@@ -49,7 +49,7 @@ pipeline {
          
          parallel {
            stage('Deploy Image to docker hub') {
-                   steps{
+                   steps {
                        script {
                           docker.withRegistry( '', registryCredential ) {
                           dockerImage.push("$BUILD_NUMBER")
@@ -60,7 +60,7 @@ pipeline {
            }  
            
            stage('Do not Deploy Image to docker hub') {
-                   steps{
+                   steps {
                       sh """
                           echo 'Security test failed to pass'
                       """
