@@ -47,7 +47,7 @@ pipeline {
             sh 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
           }
         }
-        } catch (e) {
+      } catch (e) {
              build_ok = false
              echo e.toString()  
         }
@@ -63,11 +63,10 @@ pipeline {
              }
            }  
         }
-      }
-      else {
-         currentBuild.result = "FAILURE"
-         echo "Image failed and we do not deploy unsecure image to the repository" 
-      }
+      } else {
+           currentBuild.result = "FAILURE"
+           echo "Image failed and we do not deploy unsecure image to the repository" 
+        }
      }
   }
 }
