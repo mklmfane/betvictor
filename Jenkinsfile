@@ -66,7 +66,7 @@ pipeline {
       } else {
            currentBuild.result = "FAILURE"
            echo "Image failed and we do not deploy unsecure image to the repository" 
-        }
+      }
      }
   }
 }
