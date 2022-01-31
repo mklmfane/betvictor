@@ -46,7 +46,7 @@ pipeline {
                       script: 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry',
                       returnStdout: true
                   ).trim()
-                  echo "Scna status is: ${SCAN_STATUS}"
+                  echo 'Scan status is: ${SCAN_STATUS}'
               }
         }
      }
