@@ -4,10 +4,6 @@ pipeline {
      buildDiscarder(logRotator(numToKeepStr: '5'))
   }
   
-  parameters {
-        booleanParam(name: "RELEASE", defaultValue: true)
-  }
-  
   environment {
      registry = 'saragoza68/spring-petclinic-hub'
      registryCredential = 'dockerHub'
@@ -49,29 +45,15 @@ pipeline {
         }
      }
     
-     stage("Publish") {
-         
-       stage('Deploy to production') { 
-         parallel {
-             stage("Deploy to registry hub") {
-               when { expression { params.RELEASE } }
-               steps {
-                        docker.withRegistry( '', registryCredential ) {
-                        dockerImage.push("$BUILD_NUMBER")
-                        dockerImage.push('latest')
-               }
+     stage('Deploy Image') {
+         steps{
+             script {
+                docker.withRegistry( '', registryCredential ) {
+                dockerImage.push("$BUILD_NUMBER")
+                dockerImage.push('latest')
              }
-             stage('Do not deploy to registry hub') {
-               when { expression { !params.RELEASE } }
-               steps {
-                        sh """
-                           echo 'Security tests failed'
-                        """
-               }
-             }
-            }
          }
-      } 
-   }
+     }
+  }
 }
 }
