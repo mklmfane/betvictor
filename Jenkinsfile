@@ -25,9 +25,9 @@ pipeline {
                docker build -t registry .    
             """
                 
-            //script {
-            //   dockerImage = docker.build registry
-            //} 
+            script {
+               dockerImage = docker.build registry
+            } 
         }
      }
     
