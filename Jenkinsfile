@@ -36,11 +36,11 @@ pipeline {
         }
      }
     
-    stage("Scanning for vulnerabilities") {
-      steps {
-          aqua containerRuntime: 'docker', customFlags: ' --layer-vulnerabilities --show-negligible --dockerless', hideBase: false, hostedImage: '', localImage: 'saragoza68/spring-petclinic-hub', localToken: <object of type hudson.util.Secret>, locationType: 'local', notCompliesCmd: '', onDisallowed: 'ignore', policies: '', register: false, registry: 'dockerHub', scannerPath: '', showNegligible: false, tarFilePath: '' 
-      }
-    }
+    //stage("Scanning for vulnerabilities") {
+    //  steps {
+    //      aqua containerRuntime: 'docker', customFlags: ' --layer-vulnerabilities --show-negligible --dockerless', hideBase: false, hostedImage: '', localImage: 'saragoza68/spring-petclinic-hub', localToken: <object of type hudson.util.Secret>, locationType: 'local', notCompliesCmd: '', onDisallowed: 'ignore', policies: '', register: false, registry: 'dockerHub', scannerPath: '', showNegligible: false, tarFilePath: '' 
+    //  }
+    //}
     
      stage('Deploy Image') {
          steps{
