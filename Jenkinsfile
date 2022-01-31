@@ -41,7 +41,13 @@ pipeline {
     
      stage('Scan for vulnerabilities') {
         steps {
-            sh 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
+              script {
+                 SCAN_STATUS = sh (
+                      script: 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry',
+                      returnStdout: true
+                  ).trim()
+                  echo "Scna status is: ${SCAN_STATUS}"
+              }
         }
      }
     
