@@ -49,24 +49,25 @@ pipeline {
         }
      }
     
-     stage('Deploy Image') {
+     stage("Publish") {
          parallel {
-           stage('Deploy Image due to security test passed') { 
-              when { expression { params.RELEASE } }
-                script {
-                  docker.withRegistry( '', registryCredential ) {
-                  dockerImage.push("$BUILD_NUMBER")
-                  dockerImage.push('latest')
-                }
+             stage("Release") {
+               when { expression { params.RELEASE } }
+               steps {
+                        docker.withRegistry( '', registryCredential ) {
+                        dockerImage.push("$BUILD_NUMBER")
+                        dockerImage.push('latest')
+               }
+             }
+             stage('Pre-Release') {
+               when { expression { !params.RELEASE } }
+               steps {
+                        sh """
+                           echo 'Security tests failed'
+                        """
+               }
+             }
             }
-            stage('Pre-Release') {
-                    when { expression { !params.RELEASE } }
-                    sh  """
-                            echo 'Security test failed to pass succesfully'
-                    """
-            }
-         }
-     }
-  }
-}
+      } 
+   }
 }
