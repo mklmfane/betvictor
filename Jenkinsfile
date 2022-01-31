@@ -53,7 +53,7 @@ pipeline {
                  //     returnStdout: true
                  // ).trim()
                  // echo "Scan status is: ${SCAN_STATUS}"
-              }
+        //      }
         //}
      }
     
