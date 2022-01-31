@@ -41,15 +41,18 @@ pipeline {
     
     stage('Report existing vulnerabilities') {  
         steps {
-            sh 'trivy image --no-progress --exit-code 0 --severity MEDIUM,HIGH,CRITICAL registry'
+            sh 'trivy image --no-progress --severity MEDIUM,HIGH,CRITICAL registry'
         }
     }
    }
  
    post { 
         always { 
-            sh 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
+            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') { 
+              sh 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
+            }
         }
+     
         success {
             echo "Security tests passed succesfully!"
             script {
