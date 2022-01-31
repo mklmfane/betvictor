@@ -48,8 +48,12 @@ pipeline {
  
    post { 
         always { 
-            sh 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
+            catchError(buildResult: 'SUCCESS', stageResult: 'ABORTED') { 
+               sh 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
+               sleep(time: 5, unit: "SECONDS")
+            }   
         }
+     
         success {
             echo "Security tests passed succesfully!"
             script {
@@ -61,7 +65,7 @@ pipeline {
         }
           
         failure {
-             echo "Security tests failed to pass succesfully!"
+                    echo "Security tests failed to pass succesfully!"
         }
     }
 }
