@@ -10,7 +10,6 @@ pipeline {
      dockerImage = ''
   }
   
-  boolean testPassed = true
   
   stages {
      stage("build preparation") {
@@ -41,29 +40,40 @@ pipeline {
         }
      }
     
-     stage('Scan for vulnerabilities') {
-        
-        steps {
-            try{
-                sh 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
-            } catch (Exception e) {
-                testPassed = false
-            }
-        }
-     }
+     //stage('Scan for vulnerabilities') {
+     //   steps {
+     //           sh 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
+     //   }
+     //}
     
-     stage('Deploy Image') {
-         steps{
-               when {
-                  expression { testPassed == true }
-               }
-               script {
+    post { 
+        always { 
+            sh 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
+        }
+        success {
+            script {
                   docker.withRegistry( '', registryCredential ) {
                   dockerImage.push("$BUILD_NUMBER")
                   dockerImage.push('latest')
-               }     
-         }
-     }
+                  }
+            }
+        }
+          
+        failure {
+             echo "It failed to run"
+        }
+    }
+    
+     //stage('Deploy Image') {
+     //    steps{
+     //         
+     //          script {
+     //             docker.withRegistry( '', registryCredential ) {
+     //             dockerImage.push("$BUILD_NUMBER")
+     //             dockerImage.push('latest')
+     //          }     
+     //    }
+     //}
   }
 }
 }
