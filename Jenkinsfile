@@ -39,14 +39,9 @@ pipeline {
            	"""
         }
      }
-    
-     //stage('Scan for vulnerabilities') {
-     //   steps {
-     //           sh 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
-     //   }
-     //}
-    
-    post { 
+   }
+   
+   post { 
         always { 
             sh 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
         }
