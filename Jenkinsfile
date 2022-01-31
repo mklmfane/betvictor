@@ -10,6 +10,8 @@ pipeline {
      dockerImage = ''
   }
   
+  def build_ok = true
+  
   stages {
      stage("Build preparation") {
         steps {
@@ -39,20 +41,33 @@ pipeline {
         }
      }
     
-     stage('Scan for vulnerabilities') {
-        steps {
+     try{
+        stage('Scan for vulnerabilities') {
+          steps {
             sh 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
+          }
         }
-     }
+        } catch (e) {
+             build_ok = false
+             echo e.toString()  
+        }
     
-     stage('Deploy Image') {
-         steps{
+     if(build_ok) { 
+        currentBuild.result = "SUCCESS" 
+        stage('Deploy Image') {
+           steps {
              script {
                 docker.withRegistry( '', registryCredential ) {
                 dockerImage.push("$BUILD_NUMBER")
                 dockerImage.push('latest')
              }
-         }
+           }  
+        }
+      }
+      else {
+         currentBuild.result = "FAILURE"
+         echo "Image failed and we do not deploy unsecure image to the repository" 
+      }
      }
   }
 }
