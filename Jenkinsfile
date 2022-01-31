@@ -56,7 +56,7 @@ pipeline {
         success {
             catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                 sh """
-                      trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
+                      trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry
                       echo 'Security tests passed succesfully!'
                 """
                 script {
@@ -71,7 +71,7 @@ pipeline {
         failure {
               catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') { 
                   sh """
-                       trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
+                       trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry
                        echo 'Security tests failed to pass succesfully!'
                   """
               }
