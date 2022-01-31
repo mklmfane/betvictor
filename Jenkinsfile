@@ -10,7 +10,6 @@ pipeline {
      dockerImage = ''
   }
   
-  
   stages {
      stage("build preparation") {
         steps {
@@ -39,37 +38,23 @@ pipeline {
            	"""
         }
      }
-   }
-   
-   post { 
-        always { 
-            sh 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
-        }
-        success {
-            script {
-                  docker.withRegistry( '', registryCredential ) {
-                  dockerImage.push("$BUILD_NUMBER")
-                  dockerImage.push('latest')
-                  }
-            }
-        }
-          
-        failure {
-             echo "It failed to run"
-        }
-    }
     
-     //stage('Deploy Image') {
-     //    steps{
-     //         
-     //          script {
-     //             docker.withRegistry( '', registryCredential ) {
-     //             dockerImage.push("$BUILD_NUMBER")
-     //             dockerImage.push('latest')
-     //          }     
-     //    }
-     //}
-  //}
-}
+     stage('Scan for vulnerabilities') {
+        
+        steps {
+            sh 'trivy image --no-progress --exit-code 0 --severity MEDIUM,HIGH,CRITICAL registry'
+        }
+     }
+    
+     stage('Deploy Image') {
+         steps{
+             script {
+                docker.withRegistry( '', registryCredential ) {
+                dockerImage.push("$BUILD_NUMBER")
+                dockerImage.push('latest')
+             }
+         }
+     }
+  }
 }
 }
