@@ -1,5 +1,8 @@
 pipeline {    
   agent { label "linux" }
+  options {
+     buildDiscarder(logRotator(numToKeepStr: '5'))
+  }
   
   environment {
      registry = 'saragoza68/spring-petclinic-hub'
@@ -16,19 +19,19 @@ pipeline {
         }
      }
     
-     stage("build") {
+     stage("Build container") {
         steps {    
             sh """ 
                docker build -t registry .    
             """
                 
-             script {
-               dockerImage = docker.build registry
-             } 
+            //script {
+            //   dockerImage = docker.build registry
+            //} 
         }
      }
     
-     stage("run") {
+     stage("Run container from an image") {
         steps {
            	sh """
               	   docker run -d -p 8081:8181 registry 
@@ -36,19 +39,19 @@ pipeline {
         }
      }
     
-    //stage("Scanning for vulnerabilities") {
-    //  steps {
-    //      aqua containerRuntime: 'docker', customFlags: ' --layer-vulnerabilities --show-negligible --dockerless', hideBase: false, hostedImage: '', localImage: 'saragoza68/spring-petclinic-hub', localToken: <object of type hudson.util.Secret>, locationType: 'local', notCompliesCmd: '', onDisallowed: 'ignore', policies: '', register: false, registry: 'dockerHub', scannerPath: '', showNegligible: false, tarFilePath: '' 
-    //  }
-    //}
+     stage('Scan for vulnerabilities') {
+        steps {
+            sh 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
+        }
+     }
     
      stage('Deploy Image') {
          steps{
-           script {
-                  docker.withRegistry( '', registryCredential ) {
-                  dockerImage.push("$BUILD_NUMBER")
-                  dockerImage.push('latest')
-           }
+             script {
+                docker.withRegistry( '', registryCredential ) {
+                dockerImage.push("$BUILD_NUMBER")
+                dockerImage.push('latest')
+             }
          }
      }
   }
