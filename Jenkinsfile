@@ -46,15 +46,23 @@ pipeline {
         }
      }
     
-     stage('Deploy Image') {
-         steps{
-             script {
-                docker.withRegistry( '', registryCredential ) {
-                dockerImage.push("$BUILD_NUMBER")
-                dockerImage.push('latest')
-             }
-         }
-     }
-  }
-}
+   }
+ 
+   post { 
+        always { 
+            sh 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
+        }
+        success {
+            script {
+                  docker.withRegistry( '', registryCredential ) {
+                  dockerImage.push("$BUILD_NUMBER")
+                  dockerImage.push('latest')
+                  }
+            }
+        }
+          
+        failure {
+             echo "It failed to run"
+        }
+    }
 }
