@@ -48,7 +48,7 @@ pipeline {
  
    post { 
         always { 
-            catchError(buildResult: 'FAILURE', stageResult: 'ABORTED') { 
+            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') { 
                sh 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
                sleep(time: 5, unit: "SECONDS")
             }   
