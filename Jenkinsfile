@@ -8,11 +8,6 @@ pipeline {
   }
   
   stages {
-     stage('Cloning Git') {
-        steps {
-           git 'https://github.com/mklmfane/betvictor.git'
-      }
-    }
      stage("build preparation") {
         steps {
             sh """
