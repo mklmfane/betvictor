@@ -45,14 +45,27 @@ pipeline {
         }
      }
     
-     stage('Deploy Image') {
-         steps{
-             script {
-                docker.withRegistry( '', registryCredential ) {
-                dockerImage.push("$BUILD_NUMBER")
-                dockerImage.push('latest')
-             }
-         }
+     stage('Deploy Image to docker hub') {
+         
+         parallel {
+           stage('Deploy Image to docker hub') {
+                   steps{
+                       script {
+                          docker.withRegistry( '', registryCredential ) {
+                          dockerImage.push("$BUILD_NUMBER")
+                          dockerImage.push('latest')
+                          }
+                       }
+                   }
+           }  
+           
+           stage('Do not Deploy Image to docker hub') {
+                   steps{
+                      sh """
+                          echo 'Security test failed to pass'
+                      """
+                   }
+           } 
      }
   }
 }
