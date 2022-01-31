@@ -54,16 +54,14 @@ pipeline {
     
      stage('Deploy Image') {
          steps{
-             if(testPassed) {
+               when {
+                  expression { testPassed == true }
+               }
                script {
                   docker.withRegistry( '', registryCredential ) {
                   dockerImage.push("$BUILD_NUMBER")
                   dockerImage.push('latest')
-               }
-              } else {
-                echo 'Security tests failed to be succesfully executed!'
-              }      
-                     
+               }     
          }
      }
   }
