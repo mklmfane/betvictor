@@ -50,8 +50,10 @@ pipeline {
      }
     
      stage("Publish") {
+         
+       stage('Deploy to production') { 
          parallel {
-             stage("Release") {
+             stage("Deploy to registry hub") {
                when { expression { params.RELEASE } }
                steps {
                         docker.withRegistry( '', registryCredential ) {
@@ -59,7 +61,7 @@ pipeline {
                         dockerImage.push('latest')
                }
              }
-             stage('Pre-Release') {
+             stage('Do not deploy to registry hub') {
                when { expression { !params.RELEASE } }
                steps {
                         sh """
@@ -68,6 +70,7 @@ pipeline {
                }
              }
             }
+         }
       } 
    }
 }
