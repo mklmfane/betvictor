@@ -10,6 +10,10 @@ pipeline {
      dockerImage = ''
   }
   
+  parameters {
+     booleanParam(name: "RELEASE", defaultValue: true)
+  }
+  
   stages {
      stage("build preparation") {
         steps {
@@ -45,10 +49,10 @@ pipeline {
         }
      }
     
-     stage('Deploy Image to docker hub') {
-         
+     stage('Deploy Image to docker hub') {   
          parallel {
            stage('Deploy Image to docker hub') {
+                   when { expression { params.RELEASE } }  
                    steps {
                        script {
                           docker.withRegistry( '', registryCredential ) {
@@ -60,6 +64,7 @@ pipeline {
            }  
            
            stage('Do not Deploy Image to docker hub') {
+                   when { expression { !params.RELEASE } } 
                    steps {
                       sh """
                           echo 'Security test failed to pass'
