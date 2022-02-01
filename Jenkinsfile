@@ -182,13 +182,13 @@ pipeline {
         success {
             script {
               if (execute == true) {
-                  echo 'Security tests passed succesfully! We are deploying to dockehub'
+                  echo 'Security tests passed succesfully! The image willl be attempted ot be deployed to Docker Hub.'
                   docker.withRegistry( '', registryCredential ) {
                   dockerImage.push("$BUILD_NUMBER")
                   dockerImage.push('latest')
                   }
               } else {
-                  echo 'Security tests failed to pass! We do not deploy the image to the dockerHub and the pipeline will be aborted.'  
+                  echo 'Security tests failed to pass! We do not deploy the image to the Docker Hub, and the pipeline will be aborted.'  
                   currentBuild.result = 'ABORTED' 
               }
             }
