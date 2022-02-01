@@ -50,7 +50,7 @@ pipeline {
      stage("Run container from an image") {
         steps {
            	sh """
-              	   docker run -d -p 8081:8181 registry 
+              	   docker run -d -p 8086:8181 registry 
            	"""
         }
      }
