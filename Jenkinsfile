@@ -72,7 +72,7 @@ pipeline {
                   dockerImage.push('latest')
                   }
               } else {
-                echo 'Security tests failed to pass! We do not deploy to dockerHub'    
+                  echo 'Security tests failed to pass! We do not deploy to dockerHub'    
               }
             }
     }
