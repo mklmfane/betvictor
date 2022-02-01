@@ -8,6 +8,7 @@ pipeline {
      registry = 'saragoza68/spring-petclinic-hub'
      registryCredential = 'dockerHub'
      dockerImage = ''
+     def execute = false
   }
   
   stages {
@@ -46,6 +47,7 @@ pipeline {
                     def result = sh(script: "trivy image --no-progress --severity MEDIUM,HIGH,CRITICAL registry", returnStatus: true)
                     if (result == null) {
                        echo 'The returned command is succesfull!' 
+                       execute = true
                     } else {
                        echo 'The returned command is failed!' 
                     }
@@ -57,21 +59,21 @@ pipeline {
  
    post { 
         always {
-            echo 'This is the result of the vulenrability test'
+            echo 'This is the result of the vulnerability test'
         }
      
         success {
-            echo 'Security tests passed succesfully!'
             script {
-                docker.withRegistry( '', registryCredential ) {
-                dockerImage.push("$BUILD_NUMBER")
-                dockerImage.push('latest')
+              if (execute == true) {
+                  echo 'Security tests passed succesfully! We are deploying to dockehub'
+                  docker.withRegistry( '', registryCredential ) {
+                  dockerImage.push("$BUILD_NUMBER")
+                  dockerImage.push('latest')
+                  }
+              } else {
+                echo 'Security tests failed to pass!'    
+              }
             }
-        }
-          
-        failure {
-                echo 'Security tests failed to pass succesfully!' 
-        }
     }
 }
 }
