@@ -53,7 +53,8 @@ from (https://start.spring.io/) and necessary Dockerfile to build it.
    ENTRYPOINT ["java","-jar","/usr/bin/spring-petclinic.jar","--server.port=8181"]
 
    The pipeline will be built with these parameters
-     parameters {
+   
+   parameters {
          choice  choices: ["Baseline", "APIS", "Full"],
                  description: 'Type of scan that is going to perform inside the container',
                  name: 'SCAN_TYPE'
@@ -65,14 +66,14 @@ from (https://start.spring.io/) and necessary Dockerfile to build it.
          booleanParam defaultValue: true,
                  description: 'Parameter to know if wanna generate report.',
                  name: 'GENERATE_REPORT'
-  } 
+   } 
    
   The ip address 10.0.0.10 is for the virtual machine which is hosting the spring application required to be built and scanned.
    
   
       * Build - Create your docker image.
 
-        This code will built petclinic spring application
+        This stage "Build image for spring app" builds petclinic spring application.
         stages {
            stage("Build image for spring app") {
               steps {
@@ -113,8 +114,10 @@ from (https://start.spring.io/) and necessary Dockerfile to build it.
 
 
 * **Inspection**
+  
   * Implement a mechanism to run a series of test to inspect the newly created image for security issues.
-    Trivy can be used as tool to scan container images on teh virtual machien aqua label as linux 
+    
+    Trivy can be used as tool to scan container images on the virtual machine aqua labeled as linux. 
     
     sudo apt-get install wget apt-transport-https gnupg lsb-release
     wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
@@ -122,7 +125,7 @@ from (https://start.spring.io/) and necessary Dockerfile to build it.
     sudo apt-get update
     sudo apt-get install trivy
    
-   There are four stages of inspection in the pipeline performing security testing by using trivy and OWASP ZAP.
+    There are four stages of inspection in the pipeline performing security testing by using trivy and OWASP ZAP.
     *Report existing vulnerabilities using trivy installed locally by following the installation steps mentioined above 
    
     stage('Report existing vulnerabilities') {  
@@ -142,127 +145,146 @@ from (https://start.spring.io/) and necessary Dockerfile to build it.
         }
     }
     
-    * Reporting information about the current status of scanning  
+    * Reporting information about the current status of scanning.  
       It is important to displaye parameter initialized 
       ![Screenshot from 2022-02-02 00-13-13](https://user-images.githubusercontent.com/52984455/152060403-c529f92a-0051-44d8-8fee-65e1a4c92183.png)
 
       
-    stage('Pipeline Info') {
-         steps {
-             script {
-                 echo "<--Parameter Initialization-->"
-                 echo """
-                         The current parameters are:
-                             Scan Type: ${params.SCAN_TYPE}
-                             Target: ${params.TARGET}
-                             Generate report: ${params.GENERATE_REPORT}
-                 """
-                     }
-          }
-     }
+       stage('Pipeline Info') {
+            steps {
+                script {
+                    echo "<--Parameter Initialization-->"
+                    echo """
+                            The current parameters are:
+                                Scan Type: ${params.SCAN_TYPE}
+                                Target: ${params.TARGET}
+                                Generate report: ${params.GENERATE_REPORT}
+                    """
+                        }
+             }
+        }
     
     * Setting up OWASP ZAP docker container just temporarely without reuqiring to keep the docker image on the virtual machine 
 
     ![Screenshot from 2022-02-02 00-13-13](https://user-images.githubusercontent.com/52984455/152060580-bc2cda3b-13cc-491d-b25d-0352e787e668.png)
 
     
-    stage('Setting up OWASP ZAP docker container') {
-           steps {
-             script {
-                   echo "Pulling up last OWASP ZAP container --> Start"
-                   sh 'docker pull owasp/zap2docker-stable'
-                   echo "Pulling up last VMS container --> End"
-                   echo "Starting container --> Start"
-                   sh """
-                         docker run -dt --name owasp \
-                         owasp/zap2docker-stable \
-                         /bin/bash
-                   """
-             }
-           }
-    }
+       stage('Setting up OWASP ZAP docker container') {
+              steps {
+                script {
+                      echo "Pulling up last OWASP ZAP container --> Start"
+                      sh 'docker pull owasp/zap2docker-stable'
+                      echo "Pulling up last VMS container --> End"
+                      echo "Starting container --> Start"
+                      sh """
+                            docker run -dt --name owasp \
+                            owasp/zap2docker-stable \
+                            /bin/bash
+                      """
+                }
+              }
+       }
     
     * Work directory for OWASP ZAP is /zap/wrk to define the location of the report
     ![Screenshot from 2022-02-02 00-16-49](https://user-images.githubusercontent.com/52984455/152061055-ab44fbdf-2060-4f18-93ff-a7bb91255c69.png)
 
-    stage('Prepare wrk directory') {
-             when {
-                         environment name : 'GENERATE_REPORT', value: 'true'
-             }
-             steps {
-                 script {
-                         sh """
-                             docker exec owasp \
-                             mkdir /zap/wrk
-                         """
-                     }
-                 }
-         }
+       stage('Prepare wrk directory') {
+                when {
+                            environment name : 'GENERATE_REPORT', value: 'true'
+                }
+                steps {
+                    script {
+                            sh """
+                                docker exec owasp \
+                                mkdir /zap/wrk
+                            """
+                        }
+                    }
+            }
   
      * Scanning target on owasp container is neccessary for the type of scanning performed
        To report all information it can be a better choice to choose full scanning. 
      ![Screenshot from 2022-02-02 00-21-05](https://user-images.githubusercontent.com/52984455/152061295-17e404b5-4708-4f70-8141-ebbcadc7bfbc.png)
 
-         stage('Scanning target on owasp container') {
-             steps {
-                 script {
-                     scan_type = "${params.SCAN_TYPE}"
-                     echo "----> scan_type: $scan_type"
-                     target = "${params.TARGET}"
-                     if(scan_type == "Baseline"){
-                         sh """
-                             docker exec owasp \
-                             zap-baseline.py \
-                             -t $target \
-                             -x report.xml \
-                             -I
-                         """
-                     }
-                     else if(scan_type == "APIS"){
-                         sh """
-                             docker exec owasp \
-                             zap-api-scan.py \
-                             -f openapi \
-                             -t $target \
-                             -x report.xml \
-                             -I
-                         """
-                     }
-                     else if(scan_type == "Full"){
-                         sh """
-                             docker exec owasp \
-                             zap-full-scan.py \
-                             -t $target \
-                             -x report.xml \
-                             -I
-                         """
-                         //-x report-$(date +%d-%b-%Y).xml
-                     }
-                     else{
-                         echo "Something went wrong..."
-                     }
-                 }
-             }
-         }
+            stage('Scanning target on owasp container') {
+                steps {
+                    script {
+                        scan_type = "${params.SCAN_TYPE}"
+                        echo "----> scan_type: $scan_type"
+                        target = "${params.TARGET}"
+                        if(scan_type == "Baseline"){
+                            sh """
+                                docker exec owasp \
+                                zap-baseline.py \
+                                -t $target \
+                                -x report.xml \
+                                -I
+                            """
+                        }
+                        else if(scan_type == "APIS"){
+                            sh """
+                                docker exec owasp \
+                                zap-api-scan.py \
+                                -f openapi \
+                                -t $target \
+                                -x report.xml \
+                                -I
+                            """
+                        }
+                        else if(scan_type == "Full"){
+                            sh """
+                                docker exec owasp \
+                                zap-full-scan.py \
+                                -t $target \
+                                -x report.xml \
+                                -I
+                            """
+                            //-x report-$(date +%d-%b-%Y).xml
+                        }
+                        else{
+                            echo "Something went wrong..."
+                        }
+                    }
+                }
+            }
          
          ** Copy the report in the home folder of the virtual machine
          
          ![Screenshot from 2022-02-02 00-23-21](https://user-images.githubusercontent.com/52984455/152061691-aa71bd98-5134-4c8d-ac75-9e607ebdf116.png)
 
-         stage('Copy Report to Workspace'){
-             steps {
-                 script {
-                     sh '''
-                         docker cp owasp:/zap/wrk/report.xml ${WORKSPACE}/report.xml
-                     '''
-                 }
-             }
-         }
-   }
+          stage('Copy Report to Workspace'){
+                steps {
+                    script {
+                        sh '''
+                            docker cp owasp:/zap/wrk/report.xml ${WORKSPACE}/report.xml
+                        '''
+                    }
+                }
+            }
+           }
 
 
-  * Define clear policies for your container environment. (4-5 basic examples
-are enough for this exercise)
+  * Define clear policies for your container environment. (4-5 basic examples are enough for this exercise)
+                                                   +------------------+          +                   +--------------------------------+---------------------------------------+
+|                                                | CVE-2021-25329   |          |                   | 7.0.108, 8.5.63, 9.0.43,       | tomcat: Incomplete fix                |
+|                                                |                  |          |                   | 10.0.2                         | for CVE-2020-9484 (RCE                |
+|                                                |                  |          |                   |                                | via session persistence)              |
+|                                                |                  |          |                   |                                | -->avd.aquasec.com/nvd/cve-2021-25329 |
++                                                +------------------+----------+                   +--------------------------------+---------------------------------------+
+|                                                | CVE-2019-17569   | MEDIUM   |                   | 9.0.31, 8.5.51, 7.0.100        | tomcat: Regression in handling of     |
+|                                                |                  |          |                   |                                | Transfer-Encoding header allows       |
+|                                                |                  |          |                   |                                | for HTTP request smuggling...         |
+|                                                |                  |          |                   |                                | -->avd.aquasec.com/nvd/cve-2019-17569 |
++                                                +------------------+          +                   +                                +---------------------------------------+
+|                                                | CVE-2020-1935    |          |                   |                                | tomcat: Mishandling of                |
+|                                                |                  |          |                   |                                | Transfer-Encoding header allows       |
+|                                                |                  |          |                   |                                | for HTTP request smuggling            |
+|                                                |                  |          |                   |                                | -->avd.aquasec.com/nvd/cve-2020-1935  |
++                                                +------------------+          +                   +--------------------------------+---------------------------------------+
+|                                                | CVE-2021-24122   |          |                   | 10.0.0-M10, 9.0.40, 8.5.60,    | tomcat: Information disclosure        |
+|                                                |                  |          |                   | 7.0.107                        | when using NTFS file system           |
+|                                                |                  |          |                   |                                | -->avd.aquasec.com/nvd/cve-2021-24122
+
   * Given some examples: kernel version bigger than N, openssl libs bigger than
 version X, Users running container cannot go into privileged mode.
 
