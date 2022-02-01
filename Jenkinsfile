@@ -41,27 +41,25 @@ pipeline {
     
     stage('Report existing vulnerabilities') {  
         steps {
-            sh 'trivy image --no-progress --severity MEDIUM,HIGH,CRITICAL registry'
+            script {    
+                def result = sh(script: "trivy image --no-progress --severity MEDIUM,HIGH,CRITICAL registry", returnStatus: true)
+                if (result == null) {
+                   exit 0 
+                } else {
+                   exit 1
+                }
+            } 
         }
     }
    }
  
    post { 
         always {
-          script {    
-            def result = sh(script: "trivy image --no-progress --severity MEDIUM,HIGH,CRITICAL registry", returnStatus: true)
-            if (result == null) {
-               result = "SUCCESS" 
-            } else {
-               result = "FAILURE"
-            }
-          } 
+            echo 'This is the result of teh vulenrability test '
         }
      
         success {
-            sh """
-                echo 'Security tests passed succesfully!'
-            """
+            echo 'Security tests passed succesfully!'
             script {
                 docker.withRegistry( '', registryCredential ) {
                 dockerImage.push("$BUILD_NUMBER")
@@ -70,9 +68,7 @@ pipeline {
         }
           
         failure {
-             sh """
-                echo 'Security tests failed to pass succesfully!'
-             """     
+                echo 'Security tests failed to pass succesfully!' 
         }
     }
 }
