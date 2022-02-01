@@ -72,7 +72,8 @@ pipeline {
                   dockerImage.push('latest')
                   }
               } else {
-                  echo 'Security tests failed to pass! We do not deploy to dockerHub'    
+                  echo 'Security tests failed to pass! We do not deploy the image to the dockerHub and the pipeline will be aborted.'  
+                  currentBuild.result = 'ABORTED' 
               }
             }
     }
