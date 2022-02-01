@@ -118,31 +118,31 @@ from (https://start.spring.io/) and necessary Dockerfile to build it.
     
     Trivy can be used as tool to scan container images on the virtual machine aqua labeled as linux. 
     
-    sudo apt-get install wget apt-transport-https gnupg lsb-release
-    wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-    echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
-    sudo apt-get update
-    sudo apt-get install trivy
+      sudo apt-get install wget apt-transport-https gnupg lsb-release
+      wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+      echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+      sudo apt-get update
+      sudo apt-get install trivy
    
     There are four stages of inspection in the pipeline performing security testing by using trivy and OWASP ZAP.
     *Report existing vulnerabilities using trivy installed locally by following the installation steps mentioined above 
    
-    stage('Report existing vulnerabilities') {  
-        steps {
-            script {    
-                node ('linux'){
-                    def result = sh(script: "trivy image --no-progress --severity MEDIUM,HIGH,CRITICAL registry", returnStatus: true)
-                    if (result == null) {
-                       echo 'The returned command is succesfull!' 
-                       execute = true
-                    } else {
-                       echo 'The returned command is failed!' 
-                       execute = false
-                    }
-                }
-            } 
-        }
-    }
+          stage('Report existing vulnerabilities') {  
+              steps {
+                  script {    
+                      node ('linux'){
+                          def result = sh(script: "trivy image --no-progress --severity MEDIUM,HIGH,CRITICAL registry", returnStatus: true)
+                          if (result == null) {
+                             echo 'The returned command is succesfull!' 
+                             execute = true
+                          } else {
+                             echo 'The returned command is failed!' 
+                             execute = false
+                          }
+                      }
+                  } 
+              }
+          }
     
     * Reporting information about the current status of scanning.  
       It is important to displaye parameter initialized 
