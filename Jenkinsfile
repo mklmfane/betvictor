@@ -49,7 +49,7 @@ pipeline {
    post { 
         always {
           script {    
-            def result = sh(script: "trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry", returnStatus: true)
+            def result = sh(script: "trivy image --no-progress --severity MEDIUM,HIGH,CRITICAL registry", returnStatus: true)
             if (result == null) {
                result = "SUCCESS" 
             } else {
