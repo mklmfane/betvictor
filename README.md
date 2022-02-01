@@ -265,25 +265,25 @@ from (https://start.spring.io/) and necessary Dockerfile to build it.
 
 
   * Define clear policies for your container environment. (4-5 basic examples are enough for this exercise)
-                                                   +------------------+          +                   +--------------------------------+---------------------------------------+
-|                                                | CVE-2021-25329   |          |                   | 7.0.108, 8.5.63, 9.0.43,       | tomcat: Incomplete fix                |
-|                                                |                  |          |                   | 10.0.2                         | for CVE-2020-9484 (RCE                |
-|                                                |                  |          |                   |                                | via session persistence)              |
-|                                                |                  |          |                   |                                | -->avd.aquasec.com/nvd/cve-2021-25329 |
-+                                                +------------------+----------+                   +--------------------------------+---------------------------------------+
-|                                                | CVE-2019-17569   | MEDIUM   |                   | 9.0.31, 8.5.51, 7.0.100        | tomcat: Regression in handling of     |
-|                                                |                  |          |                   |                                | Transfer-Encoding header allows       |
-|                                                |                  |          |                   |                                | for HTTP request smuggling...         |
-|                                                |                  |          |                   |                                | -->avd.aquasec.com/nvd/cve-2019-17569 |
-+                                                +------------------+          +                   +                                +---------------------------------------+
-|                                                | CVE-2020-1935    |          |                   |                                | tomcat: Mishandling of                |
-|                                                |                  |          |                   |                                | Transfer-Encoding header allows       |
-|                                                |                  |          |                   |                                | for HTTP request smuggling            |
-|                                                |                  |          |                   |                                | -->avd.aquasec.com/nvd/cve-2020-1935  |
-+                                                +------------------+          +                   +--------------------------------+---------------------------------------+
-|                                                | CVE-2021-24122   |          |                   | 10.0.0-M10, 9.0.40, 8.5.60,    | tomcat: Information disclosure        |
-|                                                |                  |          |                   | 7.0.107                        | when using NTFS file system           |
-|                                                |                  |          |                   |                                | -->avd.aquasec.com/nvd/cve-2021-24122
+                                                                                                      +------------------+          +                   +--------------------------------+---------------------------------------+
+                                                   |                                                | CVE-2021-25329   |          |                   | 7.0.108, 8.5.63, 9.0.43,       | tomcat: Incomplete fix                |
+                                                   |                                                |                  |          |                   | 10.0.2                         | for CVE-2020-9484 (RCE                |
+                                                   |                                                |                  |          |                   |                                | via session persistence)              |
+                                                   |                                                |                  |          |                   |                                | -->avd.aquasec.com/nvd/cve-2021-25329 |
+                                                   +                                                +------------------+----------+                   +--------------------------------+---------------------------------------+
+                                                   |                                                | CVE-2019-17569   | MEDIUM   |                   | 9.0.31, 8.5.51, 7.0.100        | tomcat: Regression in handling of     |
+                                                   |                                                |                  |          |                   |                                | Transfer-Encoding header allows       |
+                                                   |                                                |                  |          |                   |                                | for HTTP request smuggling...         |
+                                                   |                                                |                  |          |                   |                                | -->avd.aquasec.com/nvd/cve-2019-17569 |
+                                                   +                                                +------------------+          +                   +                                +---------------------------------------+
+                                                   |                                                | CVE-2020-1935    |          |                   |                                | tomcat: Mishandling of                |
+                                                   |                                                |                  |          |                   |                                | Transfer-Encoding header allows       |
+                                                   |                                                |                  |          |                   |                                | for HTTP request smuggling            |
+                                                   |                                                |                  |          |                   |                                | -->avd.aquasec.com/nvd/cve-2020-1935  |
+                                                   +                                                +------------------+          +                   +--------------------------------+---------------------------------------+
+                                                   |                                                | CVE-2021-24122   |          |                   | 10.0.0-M10, 9.0.40, 8.5.60,    | tomcat: Information disclosure        |
+                                                   |                                                |                  |          |                   | 7.0.107                        | when using NTFS file system           |
+                                                   |                                                |                  |          |                   |                                | -->avd.aquasec.com/nvd/cve-2021-24122
 
   * Given some examples: kernel version bigger than N, openssl libs bigger than version X, Users running container cannot go into privileged mode.
 
