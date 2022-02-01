@@ -285,78 +285,77 @@ from (https://start.spring.io/) and necessary Dockerfile to build it.
 |                                                |                  |          |                   | 7.0.107                        | when using NTFS file system           |
 |                                                |                  |          |                   |                                | -->avd.aquasec.com/nvd/cve-2021-24122
 
-  * Given some examples: kernel version bigger than N, openssl libs bigger than
-version X, Users running container cannot go into privileged mode.
+  * Given some examples: kernel version bigger than N, openssl libs bigger than version X, Users running container cannot go into privileged mode.
 
-   Trivy can detetc a lot of vulenrabilities of the following spring docker image "saragoza68/spring-petclinic-hub"
-![Screenshot from 2022-02-02 00-25-41](https://user-images.githubusercontent.com/52984455/152061884-662f24f9-8db3-41ea-9865-39aeff5d0b13.png)
+   Trivy can detect a lot of vulenrabilities of the following spring docker image "saragoza68/spring-petclinic-hub"
+   ![Screenshot from 2022-02-02 00-25-41](https://user-images.githubusercontent.com/52984455/152061884-662f24f9-8db3-41ea-9865-39aeff5d0b13.png)
+
 
 * **Decision** - Little decision making stage, if one of security tests fails the pipeline is
 aborted, if all tests pass, pipeline should progress to next stage.
 
 
 
-This stage called 'Report existing vulnerabilities' is used to report vulnerabilities created through trivy.
-  stage('Report existing vulnerabilities') {  
-        steps {
-            script {    
-                node ('linux'){
-                    def result = sh(script: "trivy image --no-progress --severity MEDIUM,HIGH,CRITICAL registry", returnStatus: true)
-                    if (result == null) {
-                       echo 'The returned command is succesfull!' 
-                       execute = true
-                    } else {
-                       echo 'The returned command is failed!' 
-                       execute = false
-                    }
-                }
-            } 
-        }
-    }
+   This stage called 'Report existing vulnerabilities' is used to report vulnerabilities created through trivy.
+         stage('Report existing vulnerabilities') {  
+              steps {
+                  script {    
+                      node ('linux'){
+                          def result = sh(script: "trivy image --no-progress --severity MEDIUM,HIGH,CRITICAL registry", returnStatus: true)
+                          if (result == null) {
+                             echo 'The returned command is succesfull!' 
+                             execute = true
+                          } else {
+                             echo 'The returned command is failed!' 
+                             execute = false
+                          }
+                      }
+                  } 
+              }
+          }
     
     
 //      In the post phase OWASP ZAP image will be removed as it is not necesary to be rpesent because it can be very dififculy to configured through the jenkins //plugins. Additionally, it is not effective to set OWASP ZAP throug jenkins plugin. that is why it is better to used OWASP ZAP to scan teh endpoint application //and then remove it.
    
-   post { 
-        always {
-            echo 'This is the result of the vulnerability test'
-            echo "Removing container"
-            sh '''
-                 docker stop owasp
-                 docker rm owasp
-            '''
-        } 
-        
- //  The variable execute is false because teh vulenebility scan report created by trivy containins too many vulnerabilities. That is the reason why the pieple //will be aborted  
- ![Screenshot from 2022-02-02 00-35-51](https://user-images.githubusercontent.com/52984455/152063112-efdfd615-013e-49b9-b912-423a0c7b4001.png)
-        success {
-            script {
-              if (execute == true) {
-                  echo 'Security tests passed succesfully! The image willl be attempted ot be deployed to Docker Hub.'
-                  docker.withRegistry( '', registryCredential ) {
-                  dockerImage.push("$BUILD_NUMBER")
-                  dockerImage.push('latest')
+         post { 
+              always {
+                  echo 'This is the result of the vulnerability test'
+                  echo "Removing container"
+                  sh '''
+                       docker stop owasp
+                       docker rm owasp
+                  '''
+              } 
+
+       //  The variable execute is false because teh vulenebility scan report created by trivy containins too many vulnerabilities. That is the reason why the pieple //will be aborted  
+       ![Screenshot from 2022-02-02 00-35-51](https://user-images.githubusercontent.com/52984455/152063112-efdfd615-013e-49b9-b912-423a0c7b4001.png)
+              success {
+                  script {
+                    if (execute == true) {
+                        echo 'Security tests passed succesfully! The image willl be attempted ot be deployed to Docker Hub.'
+                        docker.withRegistry( '', registryCredential ) {
+                        dockerImage.push("$BUILD_NUMBER")
+                        dockerImage.push('latest')
+                        }
+                    } else {
+                        echo 'Security tests failed to pass! We do not deploy the image to the Docker Hub, and the pipeline will be aborted.'  
+                        currentBuild.result = 'ABORTED' 
+                    }
                   }
-              } else {
-                  echo 'Security tests failed to pass! We do not deploy the image to the Docker Hub, and the pipeline will be aborted.'  
-                  currentBuild.result = 'ABORTED' 
-              }
-            }
-    }  
+          }  
 
      
 
-
 * **Registry** - If all test had passed you can upload the image to final docker registry.
-The variable execute is used to checked whether the trivy vulenrability report is empty. Only in case the trivy vulnerability report is empty, the docker image will be uplaoded to private dockerhub set up on aqua virtual machine by using this command "docker login"
- success {
-            script {
-              if (execute == true) {
-                  echo 'Security tests passed succesfully! The image willl be attempted ot be deployed to Docker Hub.'
-                  docker.withRegistry( '', registryCredential ) {
-                  dockerImage.push("$BUILD_NUMBER")
-                  dockerImage.push('latest')
-                  }
+   The variable execute is used to checked whether the trivy vulenrability report is empty. Only in case the trivy vulnerability report is empty, the docker image will be uplaoded to private dockerhub set up on aqua virtual machine by using this command "docker login"
+       success {
+                  script {
+                    if (execute == true) {
+                        echo 'Security tests passed succesfully! The image willl be attempted ot be deployed to Docker Hub.'
+                        docker.withRegistry( '', registryCredential ) {
+                        dockerImage.push("$BUILD_NUMBER")
+                        dockerImage.push('latest')
+                        }
 
 * **Report** - All Builds should produce a report of the tests ran and their result.
  There are two reports 
