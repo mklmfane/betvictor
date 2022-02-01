@@ -58,7 +58,6 @@ pipeline {
    post { 
         always {
             echo 'This is the result of the vulenrability test'
-            junit 'build/reports/**/*.xml'
         }
      
         success {
