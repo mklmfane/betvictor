@@ -44,9 +44,9 @@ pipeline {
             script {    
                 def result = sh(script: "trivy image --no-progress --severity MEDIUM,HIGH,CRITICAL registry", returnStatus: true)
                 if (result == null) {
-                   exit 0 
+                   echo 'The returned command is succesfull!' 
                 } else {
-                   exit 1
+                   echo 'The returned command is failed!' 
                 }
             } 
         }
