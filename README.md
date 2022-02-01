@@ -31,11 +31,10 @@ inspection over newly created container images.
      Maven is installed on ubuntu VM which acts as a slave with ssh agent connected to jenkin master virtual machine.
      ![node vm](https://user-images.githubusercontent.com/52984455/152055382-ba801090-b807-4ea3-9085-d8f6e1efe102.png)
      The actual code of the pipeline is running on aqua virtul machine labeled as linux in the pipeline code provided by Jenkinsfile. 
-     pipeline {    
-      agent { label "linux" }
      
-
-
+     pipeline {    
+         agent { label "linux" }
+     
 
 ## The stages of the Pipeline: ##
 *  Src code - Prepare a basic java spring boot web application. You can generate one
