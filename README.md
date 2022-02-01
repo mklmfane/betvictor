@@ -115,13 +115,14 @@ from (https://start.spring.io/) and necessary Dockerfile to build it.
 * **Inspection**
   * Implement a mechanism to run a series of test to inspect the newly created image for security issues.
     Trivy can be used as tool to scan container images on teh virtual machien aqua label as linux 
+    
     sudo apt-get install wget apt-transport-https gnupg lsb-release
     wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
     echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
     sudo apt-get update
     sudo apt-get install trivy
    
-   There four stages of inspection in the pipeline performing security testing  by uisng trivy and OWASP ZAP.
+   There are four stages of inspection in the pipeline performing security testing by using trivy and OWASP ZAP.
     *Report existing vulnerabilities using trivy installed locally by following the installation steps mentioined above 
    
     stage('Report existing vulnerabilities') {  
