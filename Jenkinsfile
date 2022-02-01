@@ -55,7 +55,7 @@ pipeline {
  
    post { 
         always {
-            echo 'This is the result of teh vulenrability test '
+            echo 'This is the result of the vulenrability test '
         }
      
         success {
