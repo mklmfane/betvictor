@@ -50,6 +50,7 @@ pipeline {
                        execute = true
                     } else {
                        echo 'The returned command is failed!' 
+                       execute = false
                     }
                 }
             } 
@@ -71,7 +72,7 @@ pipeline {
                   dockerImage.push('latest')
                   }
               } else {
-                echo 'Security tests failed to pass!'    
+                echo 'Security tests failed to pass! We do not deploy to dockerHub'    
               }
             }
     }
