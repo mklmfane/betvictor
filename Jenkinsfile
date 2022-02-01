@@ -42,11 +42,13 @@ pipeline {
     stage('Report existing vulnerabilities') {  
         steps {
             script {    
-                def result = sh(script: "trivy image --no-progress --severity MEDIUM,HIGH,CRITICAL registry", returnStatus: true)
-                if (result == null) {
-                   echo 'The returned command is succesfull!' 
-                } else {
-                   echo 'The returned command is failed!' 
+                node ('linux'){
+                    def result = sh(script: "trivy image --no-progress --severity MEDIUM,HIGH,CRITICAL registry", returnStatus: true)
+                    if (result == null) {
+                       echo 'The returned command is succesfull!' 
+                    } else {
+                       echo 'The returned command is failed!' 
+                    }
                 }
             } 
         }
