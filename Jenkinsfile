@@ -47,25 +47,32 @@ pipeline {
    }
  
    post { 
-        always { 
-              sh 'trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry'
+        always {
+          script {    
+            def result = sh(script: "trivy image --no-progress --exit-code 1 --severity MEDIUM,HIGH,CRITICAL registry", returnStatus: true)
+            if (result == null) {
+               result = "SUCCESS" 
+            } else {
+               result = "FAILURE"
+            }
+          } 
         }
      
         success {
-            catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-                echo "Security tests passed succesfully!"
-                script {
-                      docker.withRegistry( '', registryCredential ) {
-                      dockerImage.push("$BUILD_NUMBER")
-                      dockerImage.push('latest')
-                }
-             }
-       }
+            sh """
+                echo 'Security tests passed succesfully!'
+            """
+            script {
+                docker.withRegistry( '', registryCredential ) {
+                dockerImage.push("$BUILD_NUMBER")
+                dockerImage.push('latest')
+            }
+        }
           
         failure {
-              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                  echo "Security tests failed to pass succesfully!"
-              }
+             sh """
+                echo 'Security tests failed to pass succesfully!'
+             """     
         }
     }
 }
